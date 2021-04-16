@@ -3,14 +3,12 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.RedBlackBST;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 public class WordNet {
     private RedBlackBST<String, Integer> wordsBST = new RedBlackBST<String, Integer>();
     private String[] words; // store the nodes of synsets
     private Digraph wordMap; // store the graph of wordnet
-    private int V;
-    HashMap<Integer, Integer> topoHash;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -26,7 +24,6 @@ public class WordNet {
         }
         words = words0.toArray(new String[words0.size()]);
         wordMap = new Digraph(words.length);
-        V = wordMap.V();
         In inAdjcences = new In(hypernyms);
         while (inAdjcences.hasNextLine()) {
             String[] adj = inAdjcences.readLine().split(","); // read the hypernyms
@@ -38,6 +35,7 @@ public class WordNet {
     }
 
     private class depthFirstSearch { // to check whether the digraph is rooted DAG
+        private int V;
         private int[] marked;
         // 0 is unvisited, 1 is visited in the current path, -1 is visited before the current path
         private Digraph digraph;
@@ -45,6 +43,7 @@ public class WordNet {
         private int root;
 
         public depthFirstSearch(Digraph digraph) {
+            V = words.length;
             marked = new int[V];
             this.digraph = digraph;
             reDigraph = digraph.reverse();
@@ -91,6 +90,7 @@ public class WordNet {
 
     // throw an IllegalArgumentException unless {@code 0 <= v < V}
     private void validateVertex(int v) {
+        int V = words.length;
         if (v < 0 || v >= V)
             throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
     }
@@ -117,6 +117,8 @@ public class WordNet {
             throw new IllegalArgumentException("the input argument is null!");
         SAP sap = new SAP(wordMap);
         return Integer.toString(sap.length(1, 4));
+        int numA = wordsBST.get(nounA);
+        int numB = wordsBST.get(nounB);
 
     }
 
@@ -125,12 +127,9 @@ public class WordNet {
 
     public static void main(String[] args) {
         WordNet wordnet = new WordNet(args[0], args[1]);
-        // System.out.println(wordnet.words[1]);
+        System.out.println(wordnet.words[1]);
         String[] wds = wordnet.words;
-        // for (int i : wordnet.topologicalOrder()) {
-        //     System.out.println(i);
-        // }
-        System.out.println(wordnet.sap(wds[0], wds[2]));
+        System.out.println(wordnet.sap(wds[1], wds[4]));
 
     }
 }
