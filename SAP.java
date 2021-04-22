@@ -35,6 +35,8 @@ public class SAP {
             throw new IllegalArgumentException("input v and w are 0 at the same time!");
         if (v == w) // corner case where v == w
             return 0;
+        validateVertex(v);
+        validateVertex(w);
         int pathLen = -1; // final shortest  path length
         layer = new int[V]; // distance from the vertex w's perspective
         marked = new boolean[V]; // visiting status
@@ -103,6 +105,8 @@ public class SAP {
             throw new IllegalArgumentException("v and w are 0 at the same time!");
         if (v == w)
             return v; // corner case where v equals w
+        validateVertex(v);
+        validateVertex(w);
         marked = new boolean[V]; // visiting status
         Queue<Integer> q = new Queue<Integer>(); // queue for breadth first search
         // DFS to find the adjacency of v and sort them in the topological order
@@ -149,6 +153,10 @@ public class SAP {
             throw new IllegalArgumentException("input v or w are null!");
         // if (v == w) // corner case where v == w
         //     return 0;
+        for (int i : v)
+            validateVertex(i);
+        for (int i : w)
+            validateVertex(i);
         int pathLen = -1; // final shortest  path length
         layer = new int[V]; // distance from the vertex w's perspective
         marked = new boolean[V]; // visiting status
@@ -213,6 +221,10 @@ public class SAP {
             throw new IllegalArgumentException("input v or w are null!");
         // if (v == w) // corner case where v == w
         //     return 0;
+        for (int i : v)
+            validateVertex(i);
+        for (int i : w)
+            validateVertex(i);
         int pathLen = -1; // final shortest  path length
         int ancestor = -1;
         layer = new int[V]; // distance from the vertex w's perspective
@@ -269,6 +281,12 @@ public class SAP {
                 }
         }
         return ancestor;
+    }
+
+    // throw an IllegalArgumentException unless {@code 0 <= v < V}
+    private void validateVertex(int v) {
+        if (v < 0 || v >= V)
+            throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
     }
 
     // do unit testing of this class
