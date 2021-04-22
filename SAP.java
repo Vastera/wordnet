@@ -22,8 +22,11 @@ public class SAP {
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
-        this.G = G;
         this.V = G.V();
+        this.G = new Digraph(V);
+        for (int v = 0; v < V; v++)
+            for (int w : G.adj(v))
+                this.G.addEdge(v, w);
     }
 
     // length of shortest ancestral path between v and w; -1 if no such path

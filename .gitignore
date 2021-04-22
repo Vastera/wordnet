@@ -1,6 +1,6 @@
-.idea/*
+*.idea\
 .lift
 *.class
 *.class
-.idea/workspace.xml
+*.idea\workspace.xml
 *.xml
