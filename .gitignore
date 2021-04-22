@@ -1,3 +1,4 @@
-
+*.idea
+*.lift
 *.class
 *.class
