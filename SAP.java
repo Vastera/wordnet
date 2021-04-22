@@ -16,6 +16,7 @@ public class SAP {
     private Digraph G;
     private int V;
     private boolean[] marked;
+    int[] layer;
 
 
     // constructor takes a digraph (not necessarily a DAG)
@@ -31,7 +32,7 @@ public class SAP {
         if (v == w) // corner case where v == w
             return 0;
         int pathLen = -1; // final shortest  path length
-        int[] layer = new int[V]; // distance from the vertex w's perspective
+        layer = new int[V]; // distance from the vertex w's perspective
         marked = new boolean[V]; // visiting status
         Queue<Integer> q = new Queue<Integer>(); // queue for breadth first search
         // DFS to find the adjacency of v and sort them in the topological order
@@ -45,19 +46,19 @@ public class SAP {
         for (int i : G.adj(v)) {
             if (!marked[i]) {
                 marked[i] = true;
+                layer[i] = layer[v] + 1;
                 dfs(i, reversePost);
             }
         }
         reversePost.operation(v);
-        int j = 0;
         for (int i : topoOrder)
-            topoHash.put(i, j++);
+            topoHash.put(i, layer[i]);
         // BFS to find the least common ancestor and return the length
         q.enqueue(w);
         marked = new boolean[V]; // reset the markers as false
         marked[w] = true;
         if (topoHash.containsKey(w))
-            return topoHash.get(w) + layer[w];
+            return topoHash.get(w);
 
         while (!q.isEmpty()) {
             int x = q.dequeue();
@@ -84,6 +85,7 @@ public class SAP {
         for (int i : G.adj(v)) {
             if (!marked[i]) {
                 marked[i] = true;
+                layer[i] = layer[v] + 1;
                 dfs(i, op);
             }
         }
@@ -124,7 +126,7 @@ public class SAP {
         marked[w] = true;
         while (!q.isEmpty()) {
             int x = q.dequeue();
-            for (int i : G.adj(w)) {
+            for (int i : G.adj(x)) {
                 if (!marked[i]) {
                     if (topoHash.contains(i))
                         return i;
@@ -143,7 +145,7 @@ public class SAP {
         // if (v == w) // corner case where v == w
         //     return 0;
         int pathLen = -1; // final shortest  path length
-        int[] layer = new int[V]; // distance from the vertex w's perspective
+        layer = new int[V]; // distance from the vertex w's perspective
         marked = new boolean[V]; // visiting status
         Queue<Integer> q = new Queue<Integer>(); // queue for breadth first search
         // DFS to find the adjacency of v and sort them in the topological order
@@ -159,6 +161,7 @@ public class SAP {
             for (int j : G.adj(i)) {
                 if (!marked[j]) {
                     marked[j] = true;
+                    layer[j] = layer[i] + 1;
                     dfs(j, reversePost);
                 }
             }
@@ -166,7 +169,7 @@ public class SAP {
         }
         int j = 0;
         for (int i : topoOrder)
-            topoHash.put(i, j++);
+            topoHash.put(i, layer[i]);
         // BFS to find the least common ancestor and return the length
         marked = new boolean[V]; // reset the markers as false
         for (int i : w) {
@@ -202,8 +205,8 @@ public class SAP {
         In inGraph = new In(args[0]);
         Digraph G = new Digraph(inGraph);
         SAP sap = new SAP(G);
-        System.out.println("length = " + sap.length(13, 7));
-        System.out.println("common ancesttor : " + sap.ancestor(13, 7));
+        System.out.println("length = " + sap.length(13, 16));
+        System.out.println("common ancesttor : " + sap.ancestor(13, 16));
     }
 
 }
