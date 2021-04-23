@@ -3,12 +3,14 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.RedBlackBST;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class WordNet {
     private RedBlackBST<String, Integer> wordsBST = new RedBlackBST<String, Integer>();
     private String[] words; // store the nodes of synsets
     private Digraph wordMap; // store the graph of wordnet
+    private int V;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -23,6 +25,7 @@ public class WordNet {
             words0.add(Integer.parseInt(w[0]), w[1]);
         }
         words = words0.toArray(new String[words0.size()]);
+        V = words.length;
         wordMap = new Digraph(words.length);
         In inAdjcences = new In(hypernyms);
         while (inAdjcences.hasNextLine()) {
@@ -34,8 +37,17 @@ public class WordNet {
         dF.isRootedDAG();
     }
 
+    public int V() {
+        return V;
+    }
+
+    public int nounID(String s) {
+        if (!isNoun(s))
+            throw new IllegalArgumentException(s + "is not a noun in the word net!");
+        return wordsBST.get(s);
+    }
+
     private class depthFirstSearch { // to check whether the digraph is rooted DAG
-        private int V;
         private int[] marked;
         // 0 is unvisited, 1 is visited in the current path, -1 is visited before the current path
         private Digraph digraph;
@@ -43,7 +55,7 @@ public class WordNet {
         private int root;
 
         public depthFirstSearch(Digraph digraph) {
-            V = words.length;
+
             marked = new int[V];
             this.digraph = digraph;
             reDigraph = digraph.reverse();
@@ -90,36 +102,44 @@ public class WordNet {
 
     // throw an IllegalArgumentException unless {@code 0 <= v < V}
     private void validateVertex(int v) {
-        int V = words.length;
         if (v < 0 || v >= V)
             throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
     }
 
     // returns all WordNet nouns
-    // public Iterable<String> nouns() {
-    //
-    // }
+    public Iterable<String> nouns() {
+        return Arrays.asList(words);
+    }
 
     // is the word a WordNet noun?
-    // public boolean isNoun(String word) {
-    //
-    // }
+    public boolean isNoun(String word) {
+        return wordsBST.contains(word);
+    }
 
     // distance between nounA and nounB (defined below)
-    // public int distance(String nounA, String nounB) {
-    //
-    // }
+    public int distance(String nounA, String nounB) {
+        if (nounA == null || nounB == null)
+            throw new IllegalArgumentException("the input argument is null!");
+        if (!isNoun(nounA) || !isNoun(nounB))
+            throw new IllegalArgumentException(
+                    nounA + " or " + nounB + " is not a noun in wordnet");
+        int numA = wordsBST.get(nounA);
+        int numB = wordsBST.get(nounB);
+        SAP sap = new SAP(wordMap);
+        return sap.length(numA, numB);
+    }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
         if (nounA == null || nounB == null)
             throw new IllegalArgumentException("the input argument is null!");
-        SAP sap = new SAP(wordMap);
-        return Integer.toString(sap.length(1, 4));
+        if (!isNoun(nounA) || !isNoun(nounB))
+            throw new IllegalArgumentException("nounA or nounB is not a noun in wordnet");
         int numA = wordsBST.get(nounA);
         int numB = wordsBST.get(nounB);
-
+        SAP sap = new SAP(wordMap);
+        return words[(sap.ancestor(numA, numB))];
     }
 
 
