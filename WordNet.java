@@ -129,6 +129,16 @@ public class WordNet {
         return sap.length(numA, numB);
     }
 
+    public int distance(int numA, int numB) {
+        SAP sap = new SAP(wordMap);
+        return sap.length(numA, numB);
+    }
+
+    public int distance(Iterable<Integer> numsA, Iterable<Integer> numsB) {
+        SAP sap = new SAP(wordMap);
+        return sap.length(numsA, numsB);
+    }
+
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
