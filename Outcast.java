@@ -1,11 +1,8 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.ArrayList;
-
 public class Outcast {
     private WordNet wordnet;
-    private int V;
     private Integer[] allNounsID;
 
     // constructor takes a WordNet object
@@ -14,7 +11,6 @@ public class Outcast {
         if (wordnet == null)
             throw new IllegalArgumentException("input argument is null~");
         this.wordnet = wordnet;
-        this.V = wordnet.V();
     }
 
     // given an array of WordNet nouns, return an outcast
@@ -24,27 +20,12 @@ public class Outcast {
             throw new IllegalArgumentException("input argument 'nouns' is null!");
         // find all nouns in the word net
         int len = nouns.length;
-        ArrayList<Integer>[] allNounsID = new ArrayList[len];
 
-        for (int i = 0; i < len; i++) {
-            allNounsID[i] = new ArrayList<Integer>();
-            int j = 0;
-            for (String sequence : wordnet.nouns()) {
-                String[] words = sequence.split(" ");
-                for (String w : words)
-                    if (w.contentEquals(nouns[i])) {
-                        allNounsID[i].add(j);
-                        break;
-                    }
-                j++;
-            }
-        }
-        // for (int i = 0; i < len; i++)
         int[] lenSum = new int[len];
         int dist;
         for (int i = 0; i < len - 1; i++)
             for (int j = i + 1; j < len; j++) {
-                dist = wordnet.distance(allNounsID[i], allNounsID[j]);
+                dist = wordnet.distance(nouns[i], nouns[j]);
                 lenSum[i] += dist;
                 lenSum[j] += dist;
             }

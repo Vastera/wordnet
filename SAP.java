@@ -9,15 +9,13 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.Stack;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class SAP {
     private Digraph G;
     private int V;
     private boolean[] marked;
-    int[] layer;
+    private int[] layer;
 
 
     // constructor takes a digraph (not necessarily a DAG)
@@ -31,60 +29,15 @@ public class SAP {
 
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w) {
-        if (v == 0 && w == 0)
-            throw new IllegalArgumentException("input v and w are 0 at the same time!");
-        if (v == w) // corner case where v == w
-            return 0;
-        validateVertex(v);
-        validateVertex(w);
-        int pathLen = -1; // final shortest  path length
-        layer = new int[V]; // distance from the vertex w's perspective
-        marked = new boolean[V]; // visiting status
-        Queue<Integer> q = new Queue<Integer>(); // queue for breadth first search
-        // DFS to find the adjacency of v and sort them in the topological order
-        Stack<Integer> topoOrder
-                = new Stack<Integer>(); // reverse post order for topological sorting
-        HashMap<Integer, Integer> topoHash = new HashMap<Integer, Integer>(
-                V); // accelerate the search using hashmap storing the topological order of all adjacency of vertext v
-        Operation reversePost
-                = topoOrder::push; // method reference (function pointer) for flexibility of DFS
-        marked[v] = true;
-        for (int i : G.adj(v)) {
-            if (!marked[i]) {
-                marked[i] = true;
-                layer[i] = layer[v] + 1;
-                dfs(i, reversePost);
-            }
-        }
-        reversePost.operation(v);
-        for (int i : topoOrder)
-            topoHash.put(i, layer[i]);
-        // BFS to find the least common ancestor and return the length
-        layer = new int[V];
-        q.enqueue(w);
-        marked = new boolean[V]; // reset the markers as false
-        marked[w] = true;
-        if (topoHash.containsKey(w))
-            return topoHash.get(w);
+        Queue<Integer> V = new Queue<Integer>();
+        V.enqueue(v);
+        Queue<Integer> W = new Queue<Integer>();
+        W.enqueue(w);
+        return length(V, W);
 
-        while (!q.isEmpty()) {
-            int x = q.dequeue();
-            for (int i : G.adj(x)) {
-                if (topoHash.containsKey(i)) {
-                    pathLen = topoHash.get(i) + layer[x] + 1;
-                    break;
-                }
-                if (!marked[i]) {
-                    marked[i] = true;
-                    q.enqueue(i);
-                    layer[i] = layer[x] + 1;
-                }
-            }
-        }
-        return pathLen;
     }
 
-    interface Operation {
+    private interface Operation {
         void operation(int p);
     }
 
@@ -101,50 +54,13 @@ public class SAP {
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w) {
-        if (v == 0 && w == 0)
-            throw new IllegalArgumentException("v and w are 0 at the same time!");
         if (v == w)
             return v; // corner case where v equals w
-        validateVertex(v);
-        validateVertex(w);
-        marked = new boolean[V]; // visiting status
-        Queue<Integer> q = new Queue<Integer>(); // queue for breadth first search
-        // DFS to find the adjacency of v and sort them in the topological order
-        Stack<Integer> topoOrder
-                = new Stack<Integer>(); // reverse post order for topological sorting
-        HashSet<Integer> topoHash = new HashSet<Integer>(
-                V); // accelerate the search using hashset storing all adjacency of vertext v
-        Operation reversePost
-                = topoOrder::push; // method reference (function pointer) for flexibility of DFS
-        marked[v] = true;
-        for (int i : G.adj(v)) {
-            if (!marked[i]) {
-                marked[i] = true;
-                dfs(i, reversePost);
-            }
-        }
-        reversePost.operation(v);
-        int j = 0;
-        for (int i : topoOrder)
-            topoHash.add(i);
-        // BFS to find the least common ancestor
-        q.enqueue(w);
-        if (topoHash.contains(w))
-            return w;
-        marked = new boolean[V];
-        marked[w] = true;
-        while (!q.isEmpty()) {
-            int x = q.dequeue();
-            for (int i : G.adj(x)) {
-                if (!marked[i]) {
-                    if (topoHash.contains(i))
-                        return i;
-                    marked[i] = true;
-                    q.enqueue(i);
-                }
-            }
-        }
-        return -1;
+        Queue<Integer> V = new Queue<Integer>();
+        V.enqueue(v);
+        Queue<Integer> W = new Queue<Integer>();
+        W.enqueue(w);
+        return ancestor(V, W);
     }
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
@@ -258,7 +174,7 @@ public class SAP {
         marked = new boolean[V]; // reset the markers as false
         for (int i : w)
             if (topoHash.containsKey(i))
-                return topoHash.get(i);
+                return i;
 
         for (int i : w) {
             marked[i] = true;
@@ -294,14 +210,14 @@ public class SAP {
         In inGraph = new In(args[0]);
         Digraph G = new Digraph(inGraph);
         SAP sap = new SAP(G);
-        System.out.println("length = " + sap.length(13, 16));
-        System.out.println("common ancestor : " + sap.ancestor(13, 16));
-        Iterable<Integer> V = Arrays.asList(new Integer[] { 13, 23, 24 });
-        Iterable<Integer> W = Arrays.asList(new Integer[] { 6, 16, 17 });
-        System.out.println(
-                "length = " + sap.length(V, W));
-        System.out.println(
-                "common ancestor = " + sap.ancestor(V, W));
+        System.out.println("length = " + sap.length(1, 5));
+        System.out.println("common ancestor : " + sap.ancestor(1, 5));
+        // Iterable<Integer> V = Arrays.asList(new Integer[] { 13, 23, 24 });
+        // Iterable<Integer> W = Arrays.asList(new Integer[] { 6, 16, 17 });
+        // System.out.println(
+        //         "length = " + sap.length(V, W));
+        // System.out.println(
+        //         "common ancestor = " + sap.ancestor(V, W));
     }
 
 }

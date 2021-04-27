@@ -33,28 +33,19 @@ public class WordNet {
             for (int i = 1; i < adj.length; i++)
                 wordMap.addEdge(Integer.parseInt(adj[0]), Integer.parseInt(adj[i]));
         }
-        depthFirstSearch dF = new depthFirstSearch(wordMap);
+        DepthFirstSearch dF = new DepthFirstSearch(wordMap);
         dF.isRootedDAG();
     }
 
-    public int V() {
-        return V;
-    }
 
-    public int nounID(String s) {
-        if (!isNoun(s))
-            throw new IllegalArgumentException(s + "is not a noun in the word net!");
-        return wordsBST.get(s);
-    }
-
-    private class depthFirstSearch { // to check whether the digraph is rooted DAG
+    private class DepthFirstSearch { // to check whether the digraph is rooted DAG
         private int[] marked;
         // 0 is unvisited, 1 is visited in the current path, -1 is visited before the current path
         private Digraph digraph;
         private Digraph reDigraph;
         private int root;
 
-        public depthFirstSearch(Digraph digraph) {
+        public DepthFirstSearch(Digraph digraph) {
 
             marked = new int[V];
             this.digraph = digraph;
@@ -76,7 +67,7 @@ public class WordNet {
                 }
             }
             marked = new int[V];
-            DFS(root);
+            dFS(root);
             for (int i = 0; i < digraph.V(); i++) {
                 if (marked[i] == 0) {
                     throw new IllegalArgumentException(
@@ -85,7 +76,7 @@ public class WordNet {
             }
         }
 
-        private void DFS(int v) {
+        private void dFS(int v) {
             validateVertex(v);
             if (marked[v] == 1) {
                 throw new IllegalArgumentException("there is directed circle in the Digraph!");
@@ -93,7 +84,7 @@ public class WordNet {
             else if (marked[v] == -1) return; // the following part has been visited
             marked[v] = 1;
             for (int i : reDigraph.adj(v)) {
-                DFS(i);
+                dFS(i);
             }
             marked[v] = -1;
         }
@@ -120,36 +111,61 @@ public class WordNet {
     public int distance(String nounA, String nounB) {
         if (nounA == null || nounB == null)
             throw new IllegalArgumentException("the input argument is null!");
-        if (!isNoun(nounA) || !isNoun(nounB))
-            throw new IllegalArgumentException(
-                    nounA + " or " + nounB + " is not a noun in wordnet");
-        int numA = wordsBST.get(nounA);
-        int numB = wordsBST.get(nounB);
+        ArrayList<Integer> nounAID = new ArrayList<Integer>();
+        ArrayList<Integer> nounBID = new ArrayList<Integer>();
+        boolean isNounA = false;
+        boolean isNounB = false;
+        for (int i = 0; i < V; i++) {
+            String[] W = words[i].split(" ");
+            for (String w : W) {
+                if (w.contentEquals(nounA)) {
+                    isNounA = true;
+                    nounAID.add(i);
+                    break;
+                }
+                if (w.contentEquals(nounB)) {
+                    isNounB = true;
+                    nounBID.add(i);
+                    break;
+                }
+            }
+        }
+        if (!isNounA) throw new IllegalArgumentException(nounA + " is not a noun in word net!");
+        if (!isNounB) throw new IllegalArgumentException(nounB + " is not a noun in word net!");
         SAP sap = new SAP(wordMap);
-        return sap.length(numA, numB);
+        return sap.length(nounAID, nounBID);
+
     }
 
-    public int distance(int numA, int numB) {
-        SAP sap = new SAP(wordMap);
-        return sap.length(numA, numB);
-    }
-
-    public int distance(Iterable<Integer> numsA, Iterable<Integer> numsB) {
-        SAP sap = new SAP(wordMap);
-        return sap.length(numsA, numsB);
-    }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
         if (nounA == null || nounB == null)
             throw new IllegalArgumentException("the input argument is null!");
-        if (!isNoun(nounA) || !isNoun(nounB))
-            throw new IllegalArgumentException("nounA or nounB is not a noun in wordnet");
-        int numA = wordsBST.get(nounA);
-        int numB = wordsBST.get(nounB);
+        ArrayList<Integer> nounAID = new ArrayList<Integer>();
+        ArrayList<Integer> nounBID = new ArrayList<Integer>();
+        boolean isNounA = false;
+        boolean isNounB = false;
+        for (int i = 0; i < V; i++) {
+            String[] W = words[i].split(" ");
+            for (String w : W) {
+                if (w.contentEquals(nounA)) {
+                    isNounA = true;
+                    nounAID.add(i);
+                    break;
+                }
+                if (w.contentEquals(nounB)) {
+                    isNounB = true;
+                    nounBID.add(i);
+                    break;
+                }
+            }
+        }
+        if (!isNounA) throw new IllegalArgumentException(nounA + " is not a noun in word net!");
+        if (!isNounB) throw new IllegalArgumentException(nounB + " is not a noun in word net!");
         SAP sap = new SAP(wordMap);
-        return words[(sap.ancestor(numA, numB))];
+        return words[sap.ancestor(nounAID, nounBID)];
     }
 
 
